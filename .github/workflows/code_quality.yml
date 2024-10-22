@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '**.py'
+      - '**/*.py'
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Set up Python 3.12
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: '3.12'
         
@@ -31,10 +31,10 @@ jobs:
         pip install pylint
         
     - name: Analysing the code with pylint
-      run: pylint **/*.py --fail-under=8 > pylint_report.txt
+      run: pylint **/*.py --fail-under=8 | tee pylint_report.txt
       
     - name: Upload pylint report as artifact
       uses: actions/upload-artifact@v3
       with:
-        name: pylint-report
-        path: pylint_report.txt
+        name: pylint-report-$(date +%Y-%m-%d-%H-%M-%S)
+        path: pylint-report.txt
