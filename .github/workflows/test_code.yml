@@ -42,7 +42,7 @@ jobs:
 
     - name: Upload coverage text report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-txt-report
         path: coverage_report.txt

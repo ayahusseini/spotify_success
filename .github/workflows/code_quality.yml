@@ -34,7 +34,7 @@ jobs:
       run: pylint **/*.py --fail-under=8 | tee pylint_report.txt
       
     - name: Upload pylint report as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pylint-report-$(date +%Y-%m-%d-%H-%M-%S)
         path: pylint-report.txt
