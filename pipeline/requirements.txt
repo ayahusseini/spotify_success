@@ -3,3 +3,4 @@ pytest-cov
 pylint
 opendatasets
 pandas
+python-dotenv
