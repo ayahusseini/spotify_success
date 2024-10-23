@@ -1,5 +1,6 @@
 pytest 
 pytest-cov
 pylint
-opendatasets
+kagglehub
 pandas
+python-dotenv
