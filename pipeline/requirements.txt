@@ -4,3 +4,8 @@ pylint
 kagglehub
 pandas
 python-dotenv
+jupyter 
+matplotlib
+numpy
+scipy
+scikit-learn
