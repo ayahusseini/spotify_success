@@ -21,7 +21,7 @@ def download_csv(dataset_name: str, download_path: str) -> None:
 
 def load_csv_as_df(filepath: str) -> pd.DataFrame:
     """Loads a CSV file as a dataframe"""
-    return pd.read_csv(filepath)
+    return pd.read_csv(filepath, index_col=[0])
 
 
 def extract(dataset: str, download_filepath: str, delete_csv: bool) -> pd.DataFrame:

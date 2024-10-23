@@ -17,3 +17,7 @@ pip install -r requirements.txt
 KAGGLE_USERNAME=XXXXXXX
 KAGGLE_KEY=XXXXXXXXXXXXXXXX
 ```
+
+## Files 
+
+- `extract.py` downloads the dataset and returns it as a pandas dataframe
