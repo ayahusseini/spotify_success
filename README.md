@@ -7,4 +7,4 @@ Eventual project:
 - instead of working with the kaggle dataset (from 2022), use more recent data collected from the spotify API
 - Host on cloud
 - Add sentiment analysis of song lyrics to the dataset
-- Create an app that forecasts the success of an input song (will need
+- Create an app that forecasts the success of an input song (will need to infer metrics like **energy**, **danceability**, **key** from the song itself, so this part could be quite involved)
