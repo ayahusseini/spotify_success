@@ -1,5 +1,7 @@
-"""A script to clean the extracted data"""
+"""Functions for cleaning the extracted data"""
 import pandas as pd
+
+FEATURES = []
 
 
 def clean_duplicate_track_ids(spotify_data: pd.DataFrame):
