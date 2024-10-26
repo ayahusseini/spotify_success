@@ -9,3 +9,4 @@ matplotlib
 numpy
 scipy
 scikit-learn
+nltk 
