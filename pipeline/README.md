@@ -21,3 +21,4 @@ KAGGLE_KEY=XXXXXXXXXXXXXXXX
 ## Files 
 
 - `extract.py` downloads the dataset and returns it as a pandas dataframe
+- `data_cleaning.py` contains useful functions for data cleaning
