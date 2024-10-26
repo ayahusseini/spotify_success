@@ -45,12 +45,12 @@ def clean_data(spotify_data: pd.DataFrame) -> pd.DataFrame:
     for col in ['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence']:
         spotify_data = clean_bounded_column(spotify_data, col, lower=0, upper=1)
 
-    spotify_data = spotify_data[spotify_data['key'] in range(-1,12)]
-    spotify_data = spotify_data[spotify_data['time_signature'] in range(3,8)]
-    spotify_data = spotify_data[spotify_data['mode'] in (0,1)]
+    spotify_data = spotify_data[spotify_data['key'].isin(range(-1,12))]
+    spotify_data = spotify_data[spotify_data['time_signature'].isin(range(3,8))]
+    spotify_data = spotify_data[spotify_data['mode'].isin([0,1])]
 
 
     spotify_data['track_name_sentiment'] = get_track_name_sentiment(spotify_data['track_name'])
-    
+
     return spotify_data
 
