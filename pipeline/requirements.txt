@@ -10,3 +10,4 @@ numpy
 scipy
 scikit-learn
 nltk 
+seaborn
