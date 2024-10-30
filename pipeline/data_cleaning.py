@@ -42,9 +42,6 @@ class InvalidDataCleaner(BaseEstimator, TransformerMixin):
 
         X = X[X['mode'].isin([0, 1])]
 
-        X['track_name_sentiment'] = self._get_track_name_sentiment(
-            X['track_name'])
-
         return X
 
     def _clean_bounded_column(self, data, col_name, lower=None, upper=None):
@@ -64,8 +61,21 @@ class InvalidDataCleaner(BaseEstimator, TransformerMixin):
         return data.drop(columns=['album_name', 'track_genre', 'artists'], errors='ignore')
 
 
-class TrackSentimentAdder(BaseEstimator, TransformerMixin):
-    """Custom transformer to add a track name sentiment attribute"""
+class AttributeAdder(BaseEstimator, TransformerMixin):
+    """Custom transformer to add attributes to the dataframe"""
 
-    def _get_track_name_sentiment(self, track_name):
+    def __init__(self, add_track_name_sentiment: bool = True):
+        self.add_track_name_sentiment = add_track_name_sentiment
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X['track_name_sentiment'] = self._get_track_name_sentiment(
+            X['track_name'])
+
+        return X
+
+    def _get_track_name_sentiment(self, track_name: pd.Series) -> pd.Series:
+        """Returns a series containing sentiment score for each track name"""
         return track_name.apply(lambda x: self.sia.polarity_scores(x)['compound'])
