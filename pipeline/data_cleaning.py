@@ -64,15 +64,20 @@ class InvalidDataCleaner(BaseEstimator, TransformerMixin):
 class AttributeAdder(BaseEstimator, TransformerMixin):
     """Custom transformer to add attributes to the dataframe"""
 
-    def __init__(self, add_track_name_sentiment: bool = True):
+    def __init__(self, add_track_name_sentiment: bool = True, add_danceability_to_speechiness: bool = True):
         self.add_track_name_sentiment = add_track_name_sentiment
+        self.add_danceability_to_speechiness = add_danceability_to_speechiness
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        X['track_name_sentiment'] = self._get_track_name_sentiment(
-            X['track_name'])
+        if self.add_track_name_sentiment:
+            X['track_name_sentiment'] = self._get_track_name_sentiment(
+                X['track_name'])
+
+        if self.add_danceability_to_speechiness:
+            X['danceability_to_speechiness'] = X['danceability'] / X['speechiness']
 
         return X
 
