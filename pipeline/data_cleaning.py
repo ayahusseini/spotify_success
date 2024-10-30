@@ -1,56 +1,87 @@
 """Functions for cleaning the extracted data"""
 import nltk
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 nltk.download("vader_lexicon")
 
 
-def clean_bounded_column(data:pd.DataFrame,col_name: str,lower:float|None,upper:float|None) -> bool:
-    """Returns True if a quantity is within the lower and upper bounds.
-    If a bound is set to None, it is assumed to not exist."""
-    if lower is not None:
-        data = data[data[col_name] >= lower]
-    if upper is not None:
-        data = data[data[col_name] <= upper]
-    return data
+class InvalidDataCleaner(BaseEstimator, TransformerMixin):
+    """Cleans invalid values from the dataset"""
+
+    def __init__(self, popularity_lower=0, popularity_upper=100):
+        """Instantiates a custom data cleaner"""
+        self.popularity_lower = popularity_lower
+        self.popularity_upper = popularity_upper
+
+    def fit(self, X, y=None):
+        """Fits the data"""
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Transforms the data"""
+        X = X.dropna()
+
+        X = self._feature_selection(X)
+
+        X = self._clean_duplicate_track_ids(X)
+
+        X = self._clean_bounded_column(
+            X, 'popularity', self.popularity_lower, self.popularity_upper)
+
+        for col in ['duration_ms', 'tempo']:
+            X = self._clean_bounded_column(X, col, lower=0, upper=None)
+
+        for col in ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence']:
+            X = self._clean_bounded_column(X, col, lower=0, upper=1)
+
+        X = X[X['key'].isin(range(-1, 12))]
+
+        X = X[X['time_signature'].isin(range(3, 8))]
+
+        X = X[X['mode'].isin([0, 1])]
+
+        return X
+
+    def _clean_bounded_column(self, data, col_name, lower=None, upper=None):
+        """Cleans out-of-bounds data"""
+        if lower is not None:
+            data = data[data[col_name] >= lower]
+        if upper is not None:
+            data = data[data[col_name] <= upper]
+        return data
+
+    def _clean_duplicate_track_ids(self, data):
+        """Removes duplicate track ids"""
+        return data.drop_duplicates()
+
+    def _feature_selection(self, data):
+        """Drops irrelevant features"""
+        return data.drop(columns=['album_name', 'track_genre', 'artists'], errors='ignore')
 
 
-def clean_duplicate_track_ids(data: pd.DataFrame) -> pd.DataFrame:
-    """Drops duplicate rows from the dataframe"""
-    data = data.drop_duplicates()
-    return data
+class AttributeAdder(BaseEstimator, TransformerMixin):
+    """Custom transformer to add attributes to the dataframe"""
 
-def feature_selection(data: pd.DataFrame) -> pd.DataFrame:
-    """Return the dataframe with only the relevant features"""
-    data = data.drop(labels = ['album_name','track_genre', 'artists'], axis=1)
-    return data 
+    def __init__(self, add_track_name_sentiment: bool = True, add_danceability_to_speechiness: bool = True):
+        self.add_track_name_sentiment = add_track_name_sentiment
+        self.add_danceability_to_speechiness = add_danceability_to_speechiness
+        if add_track_name_sentiment:
+            self.sia = SentimentIntensityAnalyzer()
 
-def get_track_name_sentiment(track_name: pd.Series) -> pd.Series:
-    """Return a series containing the sentiment of each track name"""
-    sia = SentimentIntensityAnalyzer()
-    return track_name.apply(lambda x: sia.polarity_scores(x)['compound'])
+    def fit(self, X, y=None):
+        return self
 
-def clean_data(spotify_data: pd.DataFrame) -> pd.DataFrame:
-    """Cleans the dataframe"""
-    spotify_data = spotify_data.dropna()
+    def transform(self, X):
+        if self.add_track_name_sentiment:
+            X['track_name_sentiment'] = self._get_track_name_sentiment(
+                X['track_name'])
 
-    spotify_data = feature_selection(spotify_data)
-    spotify_data = clean_duplicate_track_ids(spotify_data)
+        if self.add_danceability_to_speechiness:
+            X['danceability_to_speechiness'] = X['danceability'] / X['speechiness']
 
-    spotify_data = clean_bounded_column(spotify_data, 'popularity', lower=0, upper=100)
+        return X
 
-    for col in ['duration_ms','loudness','tempo']:
-        spotify_data = clean_bounded_column(spotify_data, 'duration_ms', lower=0, upper=None)
-
-    for col in ['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence']:
-        spotify_data = clean_bounded_column(spotify_data, col, lower=0, upper=1)
-
-    spotify_data = spotify_data[spotify_data['key'].isin(range(-1,12))]
-    spotify_data = spotify_data[spotify_data['time_signature'].isin(range(3,8))]
-    spotify_data = spotify_data[spotify_data['mode'].isin([0,1])]
-
-
-    spotify_data['track_name_sentiment'] = get_track_name_sentiment(spotify_data['track_name'])
-
-    return spotify_data
-
+    def _get_track_name_sentiment(self, track_name: pd.Series) -> pd.Series:
+        """Returns a series containing sentiment score for each track name"""
+        return track_name.apply(lambda x: self.sia.polarity_scores(x)['compound'])
