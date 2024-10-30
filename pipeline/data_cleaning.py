@@ -13,7 +13,6 @@ class InvalidDataCleaner(BaseEstimator, TransformerMixin):
         """Instantiates a custom data cleaner"""
         self.popularity_lower = popularity_lower
         self.popularity_upper = popularity_upper
-        self.sia = SentimentIntensityAnalyzer()
 
     def fit(self, X, y=None):
         """Fits the data"""
@@ -67,6 +66,8 @@ class AttributeAdder(BaseEstimator, TransformerMixin):
     def __init__(self, add_track_name_sentiment: bool = True, add_danceability_to_speechiness: bool = True):
         self.add_track_name_sentiment = add_track_name_sentiment
         self.add_danceability_to_speechiness = add_danceability_to_speechiness
+        if add_track_name_sentiment:
+            self.sia = SentimentIntensityAnalyzer()
 
     def fit(self, X, y=None):
         return self

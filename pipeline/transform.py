@@ -1,6 +1,7 @@
 """Script for transforming the extracted data."""
 import pandas as pd
 from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 from extract import extract, SPOTIFY_DATASET, DOWNLOAD_PATH
@@ -18,10 +19,14 @@ def create_preprocessing_pipeline(categorical_features: list[str], numerical_fea
             add_danceability_to_speechiness=True, add_track_name_sentiment=True))
     ])
 
-    return Pipeline([
-        ("clean", base_pipeline, categorical_features + numerical_features),
+    preprocessor = ColumnTransformer([
         ('num_scaling', StandardScaler(), numerical_features),
         ('cat_encoding', OneHotEncoder(), categorical_features)
+    ])
+
+    return Pipeline([
+        ('clean_and_add_attributes', base_pipeline),
+        ('preprocess', preprocessor)
     ])
 
 
@@ -32,7 +37,8 @@ def preprocess_data(data):
                             "instrumentalness", "liveness", "valence", "tempo", "track_name_sentiment"]
     pipeline = create_preprocessing_pipeline(
         categorical_attributes, numerical_attributes)
-    pipeline.fit_transform(data)
+
+    return pipeline.fit_transform(data)
 
 
 if __name__ == "__main__":
