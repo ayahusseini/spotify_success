@@ -19,7 +19,7 @@ class InvalidDataCleaner(BaseEstimator, TransformerMixin):
         """Fits the data"""
         return self
 
-    def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transforms the data"""
         X = X.dropna()
 
